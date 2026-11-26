@@ -1,0 +1,995 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiniTube - Video Platform</title>
+
+<style>
+/* GENERAL SETTINGS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+:root {
+    --bg: #f9f9f9;
+    --card: #ffffff;
+    --text: #181818;
+    --muted: #777;
+    --border: #e5e5e5;
+    --accent: #ff3030;
+    --hover: #eeeeee;
+}
+
+body.dark {
+    --bg: #101010;
+    --card: #1c1c1c;
+    --text: #ffffff;
+    --muted: #aaaaaa;
+    --border: #333333;
+    --hover: #303030;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    transition: 0.2s;
+}
+
+/* HEADER */
+header {
+    height: 65px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 25px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: bold;
+    color: var(--accent);
+    cursor: pointer;
+}
+
+.search-area {
+    display: flex;
+    width: 45%;
+    max-width: 550px;
+}
+
+.search-area input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 25px 0 0 25px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+}
+
+.search-area button {
+    padding: 0 22px;
+    border: 1px solid var(--border);
+    border-left: none;
+    border-radius: 0 25px 25px 0;
+    cursor: pointer;
+    background: var(--hover);
+    color: var(--text);
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.header-actions button {
+    border: none;
+    background: var(--hover);
+    color: var(--text);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* MAIN LAYOUT */
+.layout {
+    display: flex;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 220px;
+    min-height: calc(100vh - 65px);
+    background: var(--card);
+    padding: 20px 12px;
+    border-right: 1px solid var(--border);
+    position: fixed;
+    top: 65px;
+    bottom: 0;
+    overflow-y: auto;
+}
+
+.sidebar button {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    text-align: left;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    font-size: 15px;
+    border-radius: 9px;
+    cursor: pointer;
+    margin-bottom: 5px;
+}
+
+.sidebar button:hover,
+.sidebar button.active {
+    background: var(--hover);
+    font-weight: bold;
+}
+
+.sidebar h4 {
+    margin: 20px 12px 10px;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+/* CONTENT */
+main {
+    margin-left: 220px;
+    width: calc(100% - 220px);
+    padding: 25px;
+}
+
+.categories {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 20px;
+}
+
+.categories button {
+    padding: 10px 18px;
+    background: var(--hover);
+    color: var(--text);
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.categories button.active {
+    background: var(--text);
+    color: var(--bg);
+}
+
+.section-title {
+    margin-bottom: 22px;
+    font-size: 23px;
+}
+
+/* VIDEO CARDS */
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px 18px;
+}
+
+.video-card {
+    cursor: pointer;
+    min-width: 0;
+}
+
+.thumbnail {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--hover);
+}
+
+.thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: 0.3s;
+}
+
+.video-card:hover img {
+    transform: scale(1.05);
+}
+
+.duration {
+    position: absolute;
+    bottom: 9px;
+    right: 9px;
+    background: #000;
+    color: white;
+    padding: 4px 7px;
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+.video-info {
+    display: flex;
+    gap: 12px;
+    padding-top: 12px;
+}
+
+.channel-icon {
+    min-width: 38px;
+    height: 38px;
+    background: var(--accent);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+.video-info h3 {
+    font-size: 15px;
+    line-height: 1.4;
+    margin-bottom: 7px;
+}
+
+.video-info p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.empty {
+    padding: 50px;
+    text-align: center;
+    color: var(--muted);
+    grid-column: 1 / -1;
+}
+
+/* WATCH PAGE */
+#watchPage {
+    display: none;
+}
+
+.player {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.player iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.watch-title {
+    margin: 20px 0;
+    font-size: 23px;
+}
+
+.watch-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.watch-details p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 7px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.action-buttons button,
+.back-button,
+.comment-box button {
+    padding: 10px 16px;
+    background: var(--hover);
+    color: var(--text);
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.action-buttons button.selected {
+    background: var(--accent);
+    color: white;
+}
+
+.description {
+    background: var(--card);
+    padding: 18px;
+    border-radius: 12px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.comments h3 {
+    margin-bottom: 15px;
+}
+
+.comment-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.comment-box input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--card);
+    color: var(--text);
+    outline: none;
+}
+
+.comment {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.comment strong {
+    display: block;
+    margin-bottom: 7px;
+}
+
+.comment p {
+    color: var(--muted);
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 1000px) {
+    .video-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    header {
+        padding: 0 12px;
+        gap: 10px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .search-area {
+        width: auto;
+        flex: 1;
+    }
+
+    .search-area input {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .sidebar {
+        width: 65px;
+        padding: 12px 5px;
+    }
+
+    .sidebar button {
+        text-align: center;
+        font-size: 0;
+        padding: 14px 5px;
+    }
+
+    .sidebar button::first-letter {
+        font-size: 19px;
+    }
+
+    .sidebar h4 {
+        display: none;
+    }
+
+    main {
+        margin-left: 65px;
+        width: calc(100% - 65px);
+        padding: 15px 10px;
+    }
+
+    .video-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .header-actions {
+        gap: 5px;
+    }
+
+    .header-actions button {
+        width: 34px;
+        height: 34px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+    <div class="logo" onclick="showHome()">▶ MiniTube</div>
+
+    <div class="search-area">
+        <input type="text" id="searchInput"
+        placeholder="Search videos..."
+        oninput="searchVideos()">
+        <button onclick="searchVideos()">🔍</button>
+    </div>
+
+    <div class="header-actions">
+        <button onclick="toggleTheme()" title="Change theme">🌙</button>
+    </div>
+</header>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <button class="active" onclick="showHome()">🏠 Home</button>
+    <button onclick="showHome()">🔥 Trending</button>
+    <button onclick="showHome()">🎬 Explore</button>
+
+    <h4>Your Library</h4>
+
+    <button onclick="showHistory()">🕘 History</button>
+    <button onclick="showSaved()">⭐ Favorites</button>
+    <button onclick="showLater()">⏰ Watch Later</button>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main>
+
+    <!-- HOME PAGE -->
+    <section id="homePage">
+
+        <div class="categories" id="categories">
+            <button class="active" onclick="filterCategory('All', this)">All</button>
+            <button onclick="filterCategory('Technology', this)">Technology</button>
+            <button onclick="filterCategory('Music', this)">Music</button>
+            <button onclick="filterCategory('Education', this)">Education</button>
+            <button onclick="filterCategory('Gaming', this)">Gaming</button>
+            <button onclick="filterCategory('Entertainment', this)">Entertainment</button>
+        </div>
+
+        <h2 class="section-title" id="sectionTitle">Recommended Videos</h2>
+
+        <div class="video-grid" id="videoGrid"></div>
+    </section>
+
+    <!-- WATCH PAGE -->
+    <section id="watchPage">
+
+        <button class="back-button" onclick="showHome()">← Back to Home</button>
+
+        <div style="margin-top:20px">
+            <div class="player">
+                <iframe id="videoPlayer"
+                src=""
+                title="Video Player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen>
+                </iframe>
+            </div>
+
+            <h2 class="watch-title" id="watchTitle"></h2>
+
+            <div class="watch-details">
+                <div>
+                    <strong id="watchChannel"></strong>
+                    <p id="watchViews"></p>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="likeBtn" onclick="likeVideo()">👍 <span id="likeCount">0</span></button>
+                    <button id="dislikeBtn" onclick="dislikeVideo()">👎</button>
+                    <button onclick="toggleSave()">⭐ Save</button>
+                    <button onclick="addToLater()">⏰ Later</button>
+                </div>
+            </div>
+
+            <div class="description">
+                <strong>Video Description</strong>
+                <p id="watchDescription"></p>
+            </div>
+
+            <div class="comments">
+                <h3>Comments</h3>
+
+                <div class="comment-box">
+                    <input type="text" id="commentInput"
+                    placeholder="Write a comment...">
+                    <button onclick="addComment()">Post</button>
+                </div>
+
+                <div id="commentList"></div>
+            </div>
+        </div>
+    </section>
+
+</main>
+</div>
+
+<script>
+
+/* VIDEO DATABASE
+   Each video has its own information.
+   You can add more videos here.
+*/
+
+const videos = [
+    {
+        id: "aqz-KE-bpKQ",
+        title: "Big Buck Bunny - Animated Short Film",
+        channel: "Blender Studio",
+        views: "12M views",
+        category: "Entertainment",
+        duration: "9:56",
+        description: "Enjoy this animated short film featuring Big Buck Bunny. A fun animation created with Blender.",
+        icon: "B"
+    },
+    {
+        id: "jNQXAC9IVRw",
+        title: "Me at the zoo - The First YouTube Video",
+        channel: "Jawed Karim",
+        views: "300M views",
+        category: "Entertainment",
+        duration: "0:19",
+        description: "The historic first video uploaded to YouTube.",
+        icon: "Y"
+    },
+    {
+        id: "M7lc1UVf-VE",
+        title: "YouTube Player API Demonstration",
+        channel: "YouTube Developers",
+        views: "1M views",
+        category: "Technology",
+        duration: "Demo",
+        description: "A demonstration of the YouTube embedded player.",
+        icon: "T"
+    },
+    {
+        id: "ScMzIvxBSi4",
+        title: "Creative Video - A Visual Experience",
+        channel: "Creative Studio",
+        views: "850K views",
+        category: "Entertainment",
+        duration: "Video",
+        description: "Watch this creative video experience.",
+        icon: "C"
+    },
+    {
+        id: "dQw4w9WgXcQ",
+        title: "Never Gonna Give You Up",
+        channel: "Rick Astley",
+        views: "1B views",
+        category: "Music",
+        duration: "3:33",
+        description: "Enjoy this popular music video.",
+        icon: "R"
+    },
+    {
+        id: "ysz5S6PUM-U",
+        title: "Video Editing and Creative Technology",
+        channel: "Creative Learning",
+        views: "500K views",
+        category: "Technology",
+        duration: "Video",
+        description: "Explore video creativity and digital technology.",
+        icon: "E"
+    },
+    {
+        id: "eRsGyueVLvQ",
+        title: "Sintel - Open Movie Trailer",
+        channel: "Blender Studio",
+        views: "5M views",
+        category: "Entertainment",
+        duration: "Trailer",
+        description: "Watch the trailer for Sintel, an open movie project.",
+        icon: "S"
+    },
+    {
+        id: "kJQP7kiw5Fk",
+        title: "Despacito - Luis Fonsi",
+        channel: "Luis Fonsi",
+        views: "8B views",
+        category: "Music",
+        duration: "4:42",
+        description: "Listen to the popular song Despacito.",
+        icon: "L"
+    }
+];
+
+/* APP DATA */
+let currentVideo = null;
+let currentCategory = "All";
+
+let savedVideos = JSON.parse(localStorage.getItem("savedVideos")) || [];
+let laterVideos = JSON.parse(localStorage.getItem("laterVideos")) || [];
+let history = JSON.parse(localStorage.getItem("history")) || [];
+
+let likes = JSON.parse(localStorage.getItem("likes")) || {};
+let dislikes = JSON.parse(localStorage.getItem("dislikes")) || {};
+let comments = JSON.parse(localStorage.getItem("comments")) || {};
+
+/* DISPLAY VIDEOS */
+function displayVideos(list) {
+
+    const grid = document.getElementById("videoGrid");
+    grid.innerHTML = "";
+
+    if (list.length === 0) {
+        grid.innerHTML = '<div class="empty">No videos found.</div>';
+        return;
+    }
+
+    list.forEach(video => {
+
+        const card = document.createElement("div");
+        card.className = "video-card";
+
+        card.innerHTML = `
+            <div class="thumbnail">
+                <img src="https://img.youtube.com/vi/${video.id}/hqdefault.jpg"
+                alt="${video.title}"
+                onerror="this.src='https://placehold.co/640x360/222222/ffffff?text=MiniTube'">
+                <span class="duration">${video.duration}</span>
+            </div>
+
+            <div class="video-info">
+                <div class="channel-icon">${video.icon}</div>
+                <div>
+                    <h3></h3>
+                    <p>${video.channel}</p>
+                    <p>${video.views} • ${video.category}</p>
+                </div>
+            </div>
+        `;
+
+        card.querySelector("h3").textContent = video.title;
+
+        card.onclick = () => watchVideo(video.id);
+
+        grid.appendChild(card);
+    });
+}
+
+/* SEARCH VIDEOS */
+function searchVideos() {
+
+    const search = document.getElementById("searchInput")
+        .value.toLowerCase();
+
+    const filtered = videos.filter(video =>
+        video.title.toLowerCase().includes(search) ||
+        video.channel.toLowerCase().includes(search) ||
+        video.category.toLowerCase().includes(search)
+    );
+
+    document.getElementById("sectionTitle").textContent =
+        "Search Results";
+
+    displayVideos(filtered);
+
+    document.querySelectorAll(".categories button")
+        .forEach(button => button.classList.remove("active"));
+}
+
+/* FILTER BY CATEGORY */
+function filterCategory(category, button) {
+
+    currentCategory = category;
+
+    document.querySelectorAll(".categories button")
+        .forEach(item => item.classList.remove("active"));
+
+    button.classList.add("active");
+
+    document.getElementById("searchInput").value = "";
+
+    const filtered = category === "All"
+        ? videos
+        : videos.filter(video => video.category === category);
+
+    document.getElementById("sectionTitle").textContent =
+        category === "All" ? "Recommended Videos" : category + " Videos";
+
+    displayVideos(filtered);
+}
+
+/* OPEN VIDEO */
+function watchVideo(id) {
+
+    currentVideo = videos.find(video => video.id === id);
+
+    if (!currentVideo) return;
+
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("watchPage").style.display = "block";
+
+    document.getElementById("videoPlayer").src =
+        "https://www.youtube.com/embed/" + id + "?autoplay=1";
+
+    document.getElementById("watchTitle").textContent =
+        currentVideo.title;
+
+    document.getElementById("watchChannel").textContent =
+        currentVideo.channel;
+
+    document.getElementById("watchViews").textContent =
+        currentVideo.views + " • " + currentVideo.category;
+
+    document.getElementById("watchDescription").textContent =
+        currentVideo.description;
+
+    if (!history.includes(id)) {
+        history.unshift(id);
+    } else {
+        history = history.filter(item => item !== id);
+        history.unshift(id);
+    }
+
+    history = history.slice(0, 30);
+    localStorage.setItem("history", JSON.stringify(history));
+
+    updateActions();
+    displayComments();
+
+    window.scrollTo(0, 0);
+}
+
+/* RETURN HOME */
+function showHome() {
+
+    document.getElementById("videoPlayer").src = "";
+
+    document.getElementById("watchPage").style.display = "none";
+    document.getElementById("homePage").style.display = "block";
+
+    document.getElementById("searchInput").value = "";
+
+    document.getElementById("sectionTitle").textContent =
+        "Recommended Videos";
+
+    document.querySelectorAll(".categories button")
+        .forEach(button => button.classList.remove("active"));
+
+    document.querySelector(".categories button").classList.add("active");
+
+    displayVideos(videos);
+    window.scrollTo(0, 0);
+}
+
+/* LIKE VIDEO */
+function likeVideo() {
+
+    const id = currentVideo.id;
+
+    likes[id] = likes[id] ? 0 : 1;
+    dislikes[id] = 0;
+
+    saveActions();
+    updateActions();
+}
+
+/* DISLIKE VIDEO */
+function dislikeVideo() {
+
+    const id = currentVideo.id;
+
+    dislikes[id] = dislikes[id] ? 0 : 1;
+    likes[id] = 0;
+
+    saveActions();
+    updateActions();
+}
+
+/* UPDATE BUTTONS */
+function updateActions() {
+
+    const id = currentVideo.id;
+
+    document.getElementById("likeCount").textContent =
+        likes[id] || 0;
+
+    document.getElementById("likeBtn").classList.toggle(
+        "selected", !!likes[id]
+    );
+
+    document.getElementById("dislikeBtn").classList.toggle(
+        "selected", !!dislikes[id]
+    );
+
+    document.querySelector(".action-buttons button:nth-child(3)")
+        .classList.toggle("selected", savedVideos.includes(id));
+
+    document.querySelector(".action-buttons button:nth-child(4)")
+        .classList.toggle("selected", laterVideos.includes(id));
+}
+
+/* SAVE VIDEO */
+function toggleSave() {
+
+    const id = currentVideo.id;
+
+    if (savedVideos.includes(id)) {
+        savedVideos = savedVideos.filter(item => item !== id);
+    } else {
+        savedVideos.push(id);
+    }
+
+    localStorage.setItem("savedVideos", JSON.stringify(savedVideos));
+    updateActions();
+}
+
+/* WATCH LATER */
+function addToLater() {
+
+    const id = currentVideo.id;
+
+    if (laterVideos.includes(id)) {
+        laterVideos = laterVideos.filter(item => item !== id);
+    } else {
+        laterVideos.push(id);
+    }
+
+    localStorage.setItem("laterVideos", JSON.stringify(laterVideos));
+    updateActions();
+}
+
+/* SAVE LIKES AND DISLIKES */
+function saveActions() {
+
+    localStorage.setItem("likes", JSON.stringify(likes));
+    localStorage.setItem("dislikes", JSON.stringify(dislikes));
+}
+
+/* DISPLAY SAVED VIDEOS */
+function displayCollection(title, collection) {
+
+    document.getElementById("watchPage").style.display = "none";
+    document.getElementById("homePage").style.display = "block";
+
+    document.getElementById("videoPlayer").src = "";
+
+    document.getElementById("searchInput").value = "";
+
+    document.getElementById("sectionTitle").textContent = title;
+
+    document.querySelector(".categories").style.display = "none";
+
+    const list = collection.map(id =>
+        videos.find(video => video.id === id)
+    ).filter(Boolean);
+
+    displayVideos(list);
+}
+
+/* FAVORITES */
+function showSaved() {
+    displayCollection("My Favorites", savedVideos);
+}
+
+/* WATCH LATER */
+function showLater() {
+    displayCollection("Watch Later", laterVideos);
+}
+
+/* HISTORY */
+function showHistory() {
+    displayCollection("Watch History", history);
+}
+
+/* ADD COMMENT */
+function addComment() {
+
+    const input = document.getElementById("commentInput");
+    const text = input.value.trim();
+
+    if (!text) {
+        alert("Please write a comment first.");
+        return;
+    }
+
+    const id = currentVideo.id;
+
+    if (!comments[id]) comments[id] = [];
+
+    comments[id].unshift({
+        text: text,
+        date: new Date().toLocaleString()
+    });
+
+    localStorage.setItem("comments", JSON.stringify(comments));
+
+    input.value = "";
+    displayComments();
+}
+
+/* DISPLAY COMMENTS */
+function displayComments() {
+
+    const list = document.getElementById("commentList");
+    const videoComments = comments[currentVideo.id] || [];
+
+    list.innerHTML = "";
+
+    if (videoComments.length === 0) {
+        list.innerHTML = "<p>No comments yet. Be the first!</p>";
+        return;
+    }
+
+    videoComments.forEach(comment => {
+
+        const item = document.createElement("div");
+        item.className = "comment";
+
+        const name = document.createElement("strong");
+        name.textContent = "MiniTube User";
+
+        const message = document.createElement("p");
+        message.textContent = comment.text;
+
+        const date = document.createElement("small");
+        date.textContent = comment.date;
+
+        item.append(name, message, date);
+        list.appendChild(item);
+    });
+}
+
+/* DARK AND LIGHT MODE */
+function toggleTheme() {
+
+    document.body.classList.toggle("dark");
+
+    const darkMode = document.body.classList.contains("dark");
+
+    localStorage.setItem("darkMode", darkMode);
+
+    document.querySelector(".header-actions button").textContent =
+        darkMode ? "☀️" : "🌙";
+}
+
+/* LOAD SAVED THEME */
+if (localStorage.getItem("darkMode") === "true") {
+    document.body.classList.add("dark");
+    document.querySelector(".header-actions button").textContent = "☀️";
+}
+
+/* START APPLICATION */
+displayVideos(videos);
+
+</script>
+
+</body>
+</html>
